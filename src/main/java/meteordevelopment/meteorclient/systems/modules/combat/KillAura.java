@@ -23,6 +23,7 @@ import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.meteorclient.utils.player.Rotations;
 import meteordevelopment.meteorclient.utils.world.TickRate;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -197,6 +198,13 @@ public class KillAura extends Module {
         .build()
     );
 
+    private final Setting<Boolean> pauseOnInventory = sgTiming.add(new BoolSetting.Builder()
+        .name("pause-on-inventory")
+        .description("Does not attack while inventory or container screens are open.")
+        .defaultValue(false)
+        .build()
+    );
+
     private final Setting<Boolean> tpsSync = sgTiming.add(new BoolSetting.Builder()
         .name("TPS-sync")
         .description("Tries to sync attack delay with the server's TPS.")
@@ -252,6 +260,7 @@ public class KillAura extends Module {
         if (onlyOnClick.get() && !mc.options.attackKey.isPressed()) return;
         if (TickRate.INSTANCE.getTimeSinceLastTick() >= 1f && pauseOnLag.get()) return;
         if (pauseOnCA.get() && Modules.get().get(CrystalAura.class).isActive() && Modules.get().get(CrystalAura.class).kaTimer > 0) return;
+        if (pauseOnInventory.get() && mc.currentScreen instanceof HandledScreen) return;
 
         if (onlyOnLook.get()) {
             Entity targeted = mc.targetedEntity;
